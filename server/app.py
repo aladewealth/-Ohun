@@ -1,4 +1,4 @@
-"""Ohùn voice API. Runs on a free Hugging Face Space (CPU).
+"""Ohùn voice API. Runs on a free Hugging Face Space (Gradio SDK; inference on CPU), mounted at /api.
 
 POST /v1/tts      {"text": "...", "voice": "yo-female-1", "speed": 1.0}  -> audio/wav
 GET  /v1/voices   list of voices and whether each is live
@@ -48,8 +48,11 @@ def _engine(name: str):
             onnx, cfg = "models/ohun_yo.onnx", "models/ohun_yo.onnx.json"
             if not os.path.exists(onnx) and YO_REPO:
                 from huggingface_hub import hf_hub_download
-                onnx = hf_hub_download(YO_REPO, "ohun_yo.onnx")
-                cfg = hf_hub_download(YO_REPO, "ohun_yo.onnx.json")
+                try:
+                    onnx = hf_hub_download(YO_REPO, "ohun_yo.onnx")
+                    cfg = hf_hub_download(YO_REPO, "ohun_yo.onnx.json")
+                except Exception:  # weights not published yet
+                    return None
             if not os.path.exists(onnx):
                 return None
             eng = PiperPhonemeVoice(onnx, cfg)
@@ -80,9 +83,28 @@ def health():
     return {"ok": True}
 
 
+_yo_check = {"t": 0.0, "live": False}
+
+
+def _yo_live() -> bool:
+    """True once Yoruba weights exist locally or in the model repo (checked at most every 10 min)."""
+    if os.path.exists("models/ohun_yo.onnx"):
+        return True
+    if not YO_REPO:
+        return False
+    if time.time() - _yo_check["t"] > 600:
+        try:
+            from huggingface_hub import file_exists
+            _yo_check["live"] = file_exists(YO_REPO, "ohun_yo.onnx")
+        except Exception:
+            _yo_check["live"] = False
+        _yo_check["t"] = time.time()
+    return _yo_check["live"]
+
+
 @app.get("/v1/voices")
 def voices():
-    yo_live = os.path.exists("models/ohun_yo.onnx") or bool(YO_REPO)
+    yo_live = _yo_live()
     return [{"id": k, "language": v["lang"], "label": v["label"],
              "live": yo_live if v["engine"] == "yo" else True} for k, v in VOICES.items()]
 
@@ -107,7 +129,7 @@ async def tts(request: Request):
         while q and now - q[0] > 60:
             q.popleft()
         if len(q) >= DEMO_PER_MIN:
-            raise HTTPException(429, "demo limit reached, get an API key at ohun.vercel.app")
+            raise HTTPException(429, "demo limit reached (6 requests a minute without an API key)")
         q.append(now)
     limit = PAID_MAX_CHARS if paid else DEMO_MAX_CHARS
     if len(req.text) > limit:
@@ -121,7 +143,7 @@ async def tts(request: Request):
         raise HTTPException(503, "this voice is still training")
     from starlette.concurrency import run_in_threadpool
     if v["engine"] == "yo":
-        sr, audio = await run_in_threadpool(eng.synthesize, req.text, speaker=v["speaker"] or 0, speed=req.speed)
+        sr, audio = await run_in_threadpool(eng.synthesize, req.text, speaker=v["speaker"] if v["speaker"] is not None else 0, speed=req.speed)
     else:
         sr, audio = await run_in_threadpool(eng.synthesize, req.text, voice=v["kokoro"], speed=req.speed)
     return Response(to_wav_bytes(sr, audio), media_type="audio/wav")
