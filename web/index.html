@@ -68,12 +68,12 @@ footer{color:var(--mute);font-size:13px;padding:40px 0 60px;border-top:1px solid
 
 <section id="api">
   <h2>One request</h2>
-<pre>curl -X POST https://YOUR-SPACE.hf.space/v1/tts \
+<pre>curl -X POST https://aladewealth-ohun-api.hf.space/api/v1/tts \
   -H "Authorization: Bearer $OHUN_KEY" \
   -H "Content-Type: application/json" \
   -d '{"text":"Báwo ni?","voice":"yo-female-1"}' \
   --output hello.wav</pre>
-  <p style="color:var(--mute)">Voices: <code>yo-female-1</code>, <code>yo-male-1</code>, <code>es-female-1</code>, <code>es-male-1</code>, <code>fr-female-1</code>, <code>en-female-1</code>. Full reference at <code>/docs</code>.</p>
+  <p style="color:var(--mute)">Voices: <code>yo-female-1</code>, <code>yo-male-1</code>, <code>es-female-1</code>, <code>es-male-1</code>, <code>fr-female-1</code>, <code>en-female-1</code>. Full reference at <code>/api/docs</code>.</p>
 </section>
 
 <section id="pricing">
@@ -90,7 +90,7 @@ footer{color:var(--mute);font-size:13px;padding:40px 0 60px;border-top:1px solid
 </div>
 
 <script>
-const API = window.OHUN_API || "https://YOUR-SPACE.hf.space";
+const API = window.OHUN_API || "https://aladewealth-ohun-api.hf.space/api";
 const samples = {
   "yo-female-1":"Ẹ kú àárọ̀. Orúkọ mi ni Ohùn, mo ń sọ èdè Yorùbá.",
   "yo-male-1":"Ọkọ mi ra ọkọ̀ tuntun lánàá.",
@@ -115,7 +115,7 @@ sel.onchange = ()=>{ if(samples[sel.value]) txt.value = samples[sel.value]; };
 document.getElementById("go").onclick = async ()=>{
   st.textContent = "Generating…";
   try{
-    const r = await fetch(API + "/v1/tts", {method:"POST", headers:{"Content-Type":"application/json"},
+    const r = await fetch(API + "/v1/tts", {method:"POST", headers:{"Content-Type":"text/plain"},
       body: JSON.stringify({text: txt.value, voice: sel.value})});
     if(!r.ok){ st.textContent = (await r.json()).detail || "Something went wrong"; return; }
     player.src = URL.createObjectURL(await r.blob()); player.hidden = false; player.play(); st.textContent = "";

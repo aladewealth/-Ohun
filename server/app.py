@@ -88,7 +88,15 @@ def voices():
 
 
 @app.post("/v1/tts")
-def tts(req: TTSRequest, request: Request, authorization: str | None = Header(default=None)):
+async def tts(request: Request):
+    """Body is JSON. Content-Type text/plain is accepted too, so browsers can call it without a CORS preflight."""
+    import json as _json
+    from pydantic import ValidationError
+    try:
+        req = TTSRequest(**_json.loads(await request.body() or b"{}"))
+    except (ValueError, ValidationError) as e:
+        raise HTTPException(422, str(e)[:300])
+    authorization = request.headers.get("authorization")
     key = (authorization or "").removeprefix("Bearer ").strip()
     paid = key in API_KEYS
     if key and not paid:
@@ -107,11 +115,13 @@ def tts(req: TTSRequest, request: Request, authorization: str | None = Header(de
     v = VOICES.get(req.voice)
     if not v:
         raise HTTPException(404, "unknown voice")
-    eng = _engine(v["engine"])
+    from starlette.concurrency import run_in_threadpool as _rt
+    eng = await _rt(_engine, v["engine"])
     if eng is None:
         raise HTTPException(503, "this voice is still training")
+    from starlette.concurrency import run_in_threadpool
     if v["engine"] == "yo":
-        sr, audio = eng.synthesize(req.text, speaker=v["speaker"] or 0, speed=req.speed)
+        sr, audio = await run_in_threadpool(eng.synthesize, req.text, speaker=v["speaker"] or 0, speed=req.speed)
     else:
-        sr, audio = eng.synthesize(req.text, voice=v["kokoro"], speed=req.speed)
+        sr, audio = await run_in_threadpool(eng.synthesize, req.text, voice=v["kokoro"], speed=req.speed)
     return Response(to_wav_bytes(sr, audio), media_type="audio/wav")
