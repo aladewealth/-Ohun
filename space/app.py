@@ -46,7 +46,7 @@ from starlette.routing import Mount  # noqa: E402
 
 if __name__ == "__main__":
     demo.queue(default_concurrency_limit=2)
-    demo.launch(server_name="0.0.0.0", prevent_thread_lock=True)
+    demo.launch(server_name="0.0.0.0", prevent_thread_lock=True, ssr_mode=False)
     # REST API (with its own CORS) lives at /api/v1/*, in front of Gradio's routes.
     demo.server_app.router.routes.insert(0, Mount("/api", app=api.app))
     demo.block_thread()

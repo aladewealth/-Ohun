@@ -60,7 +60,7 @@ class KokoroVoice:
 
     def __init__(self, lang: str):
         from kokoro import KPipeline
-        self.pipe = KPipeline(lang_code=self.LANG[lang], repo_id="hexgrad/Kokoro-82M")
+        self.pipe = KPipeline(lang_code=self.LANG[lang], repo_id="hexgrad/Kokoro-82M", device="cpu")
         self.sample_rate = 24000
 
     def synthesize(self, text: str, voice: str, speed: float = 1.0):
