@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ohùn · Natural voices for Yoruba, Hausa, Igbo, Spanish and French</title>
+<meta name="description" content="Text-to-speech API with real Yoruba tones, plus Spanish and French. Simple pricing, built in Nigeria.">
+<meta property="og:title" content="Ohùn · Voices that get the tones right">
+<meta property="og:description" content="Text-to-speech API for Yoruba, Hausa, Igbo, Spanish and French.">
+<style>
+:root{--bg:#0b0c0e;--fg:#f3f1ec;--mute:#9a978f;--line:#23252a;--acc:#3ddc97;--card:#121418}
+@media (prefers-color-scheme: light){:root{--bg:#faf9f6;--fg:#141414;--mute:#6b6961;--line:#e6e3dc;--card:#fff;--acc:#0f9d63}}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Inter,sans-serif}
+a{color:inherit}.wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+header{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+.logo{font-weight:700;letter-spacing:-.02em;font-size:20px}.logo span{color:var(--acc)}
+nav a{margin-left:22px;text-decoration:none;color:var(--mute);font-size:14px}nav a:hover{color:var(--fg)}
+.hero{padding:72px 0 40px}.hero h1{font-size:clamp(36px,6vw,64px);line-height:1.02;letter-spacing:-.035em;margin:0 0 18px;max-width:14ch}
+.hero p{color:var(--mute);font-size:19px;max-width:56ch;margin:0 0 28px}
+.btn{display:inline-block;padding:12px 18px;border-radius:10px;background:var(--fg);color:var(--bg);text-decoration:none;font-weight:600;border:0;cursor:pointer;font-size:15px}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line);margin-left:8px}
+.demo{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin:28px 0 64px}
+.demo textarea{width:100%;min-height:96px;background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+select{background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}.chip{font-size:13px;border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer;color:var(--mute)}
+.chip:hover{color:var(--fg)}#status{color:var(--mute);font-size:14px}audio{width:100%;margin-top:14px}
+h2{font-size:28px;letter-spacing:-.02em;margin:0 0 18px}section{padding:40px 0;border-top:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}.card h3{margin:0 0 6px;font-size:17px}.card p{margin:0;color:var(--mute);font-size:15px}
+.price{font-size:34px;font-weight:700;letter-spacing:-.02em}.price small{font-size:14px;color:var(--mute);font-weight:400}
+.tag{font-size:12px;color:var(--acc);text-transform:uppercase;letter-spacing:.08em}
+pre{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;overflow:auto;font-size:13px}
+footer{color:var(--mute);font-size:13px;padding:40px 0 60px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div class="logo">Ohù<span>n</span></div><nav><a href="#demo">Demo</a><a href="#api">API</a><a href="#pricing">Pricing</a></nav></header>
+
+<div class="hero">
+  <div class="tag">Text-to-speech API</div>
+  <h1>Voices that get the tones right.</h1>
+  <p>Ohùn speaks Yoruba with real tone, plus Spanish, French and English, from one simple API. Hausa and Igbo are next. Built for apps, creators and learning platforms that serve Africa and the world.</p>
+  <a class="btn" href="#demo">Try it free</a><a class="btn ghost" href="#pricing">Get an API key</a>
+</div>
+
+<div class="demo" id="demo">
+  <div class="chips" id="chips"></div>
+  <textarea id="text" maxlength="300">Ẹ kú àárọ̀. Orúkọ mi ni Ohùn, mo ń sọ èdè Yorùbá.</textarea>
+  <div class="row">
+    <select id="voice"></select>
+    <button class="btn" id="go">Speak</button>
+    <span id="status"></span>
+  </div>
+  <audio id="player" controls hidden></audio>
+</div>
+
+<section>
+  <h2>Why Ohùn</h2>
+  <div class="grid">
+    <div class="card"><h3>Tone-aware Yoruba</h3><p>Our own model reads every tone mark and under-dot, so "ọkọ" (husband), "ọkọ̀" (vehicle) and "ọkọ́" (hoe) sound different.</p></div>
+    <div class="card"><h3>Five languages, one call</h3><p>Yoruba, Spanish, French and English today. Hausa and Igbo in training.</p></div>
+    <div class="card"><h3>Priced for builders</h3><p>Start free. Paid plans cost a fraction of the big voice platforms.</p></div>
+    <div class="card"><h3>Open at the core</h3><p>Trained on openly licensed speech, with the Yoruba weights released openly too. You pay for hosted speed and reliability.</p></div>
+  </div>
+</section>
+
+<section id="api">
+  <h2>One request</h2>
+<pre>curl -X POST https://YOUR-SPACE.hf.space/v1/tts \
+  -H "Authorization: Bearer $OHUN_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Báwo ni?","voice":"yo-female-1"}' \
+  --output hello.wav</pre>
+  <p style="color:var(--mute)">Voices: <code>yo-female-1</code>, <code>yo-male-1</code>, <code>es-female-1</code>, <code>es-male-1</code>, <code>fr-female-1</code>, <code>en-female-1</code>. Full reference at <code>/docs</code>.</p>
+</section>
+
+<section id="pricing">
+  <h2>Pricing</h2>
+  <div class="grid">
+    <div class="card"><div class="tag">Free</div><div class="price">$0</div><p>Web demo, up to 300 characters per request.</p></div>
+    <div class="card"><div class="tag">Starter</div><div class="price">$9<small>/month</small></div><p>200,000 characters, every voice, commercial use.</p></div>
+    <div class="card"><div class="tag">Pro</div><div class="price">$29<small>/month</small></div><p>1,000,000 characters, priority speed, email support.</p></div>
+  </div>
+  <p style="margin-top:18px"><a class="btn" id="buy" href="mailto:aladewealth2008@yahoo.com?subject=Oh%C3%B9n%20API%20key">Get an API key</a></p>
+</section>
+
+<footer>Ohùn by Atoms Intelligence Labs, Nigeria. Yoruba voice trained on Google's open Yoruba speech corpus (CC BY-SA 4.0). Spanish, French and English voices by Kokoro-82M (Apache-2.0).</footer>
+</div>
+
+<script>
+const API = window.OHUN_API || "https://YOUR-SPACE.hf.space";
+const samples = {
+  "yo-female-1":"Ẹ kú àárọ̀. Orúkọ mi ni Ohùn, mo ń sọ èdè Yorùbá.",
+  "yo-male-1":"Ọkọ mi ra ọkọ̀ tuntun lánàá.",
+  "es-female-1":"Hola, soy Ohùn. Puedo leer cualquier texto en voz alta.",
+  "es-male-1":"Bienvenidos. Esta voz funciona en tu aplicación en minutos.",
+  "fr-female-1":"Bonjour, je suis Ohùn. Je lis vos textes à voix haute.",
+  "en-female-1":"Hi, I'm Ohùn. Voices that get the tones right."
+};
+const sel = document.getElementById("voice"), txt = document.getElementById("text"),
+      st = document.getElementById("status"), player = document.getElementById("player");
+async function loadVoices(){
+  let list;
+  try { list = await (await fetch(API + "/v1/voices")).json(); }
+  catch(e){ list = Object.keys(samples).map(id=>({id,label:id,live:true})); }
+  sel.innerHTML = list.map(v=>`<option value="${v.id}" ${v.live?"":"disabled"}>${v.label}${v.live?"":" · training"}</option>`).join("");
+  document.getElementById("chips").innerHTML = list.filter(v=>v.live).map(v=>`<span class="chip" data-v="${v.id}">${v.label.split(" · ")[0]}</span>`)
+    .filter((c,i,a)=>a.findIndex(x=>x.split(">")[1]===c.split(">")[1])===i).join("");
+  document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{sel.value=c.dataset.v; txt.value=samples[c.dataset.v]||txt.value;});
+  const first = list.find(v=>v.live); if(first){ sel.value=first.id; txt.value=samples[first.id]; }
+}
+sel.onchange = ()=>{ if(samples[sel.value]) txt.value = samples[sel.value]; };
+document.getElementById("go").onclick = async ()=>{
+  st.textContent = "Generating…";
+  try{
+    const r = await fetch(API + "/v1/tts", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({text: txt.value, voice: sel.value})});
+    if(!r.ok){ st.textContent = (await r.json()).detail || "Something went wrong"; return; }
+    player.src = URL.createObjectURL(await r.blob()); player.hidden = false; player.play(); st.textContent = "";
+  }catch(e){ st.textContent = "The voice server is waking up. Try again in a minute."; }
+};
+loadVoices();
+</script>
+</body>
+</html>

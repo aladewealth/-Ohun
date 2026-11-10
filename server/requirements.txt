@@ -1,0 +1,8 @@
+fastapi>=0.110
+uvicorn[standard]
+onnxruntime>=1.17
+numpy
+huggingface_hub
+kokoro>=0.9.4
+soundfile
+pip
